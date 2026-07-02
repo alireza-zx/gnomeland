@@ -12,6 +12,7 @@ import type { gnomeOptions } from "./types/interfaces/gnomeOptions.type.js";
  * const gnomeApp = gnome.craftApp(options);
  */
 declare class gnome {
+    protected readonly gnomeOptions: gnomeOptions;
     private server;
     protected routes: Routes;
     protected routePaths: string[];
@@ -21,7 +22,7 @@ declare class gnome {
      * Create a new gnome app
      * @param options app options
      */
-    constructor(options?: gnomeOptions);
+    constructor(gnomeOptions: gnomeOptions);
     /**
      * Listens on incoming requests on a specific port and hostname
      * @param port port number

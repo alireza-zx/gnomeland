@@ -9,6 +9,7 @@ import { textWrapper } from "./response-functions/text.js";
 import { matchRoutes } from "./functions/matchRoutes.js";
 import { cookieParser } from "./functions/cookieParser.js";
 import { setCookieWrapper } from "./response-functions/setCookie.js";
+import { securityChecks } from "./functions/securityChecks.js";
 /**
  * Create http applications with Gnome!
  *
@@ -17,6 +18,7 @@ import { setCookieWrapper } from "./response-functions/setCookie.js";
  * const gnomeApp = gnome.craftApp(options);
  */
 class gnome {
+    gnomeOptions;
     server;
     routes;
     routePaths;
@@ -26,16 +28,17 @@ class gnome {
      * Create a new gnome app
      * @param options app options
      */
-    constructor(options) {
+    constructor(gnomeOptions) {
+        this.gnomeOptions = gnomeOptions;
         this.server = http.createServer();
         this.routes = {};
         this.routePaths = [];
         this.middlewares = [];
         this.errorHandler = undefined;
         // Set middlewares for every option
-        if (options?.parseBody)
-            this.middlewares.push(gnome.parseBody(options.parseBody.limit));
-        if (options?.parseCookies)
+        if (gnomeOptions.parseBody)
+            this.middlewares.push(gnome.parseBody(gnomeOptions.maxBodySize));
+        if (gnomeOptions.parseCookies)
             this.middlewares.push(gnome.parseCookies());
     }
     /**
@@ -52,6 +55,10 @@ class gnome {
      */
     listen(port, host, cb) {
         this.server.on("request", async (req, res) => {
+            req.ip = req.socket.remoteAddress;
+            // Checking the request
+            if (!securityChecks(req, res, this.gnomeOptions))
+                return;
             const splited = req.url.split('?');
             const path = splited[0];
             // -- Parsing query parameters
@@ -80,7 +87,7 @@ class gnome {
             // -- Run the handlers --
             if (!handlers)
                 return res.status(404).json({
-                    status: 'fail',
+                    status: 'failed',
                     message: `Cannot ${req.method} ${req.path}`
                 });
             runHandlersAndMiddlewares(req, res, this.middlewares, 0, handlers, this.errorHandler);
@@ -204,9 +211,18 @@ class gnome {
      * @returns a new gnome app
      */
     static craftApp(options) {
-        if (options && !options.parseBody?.limit)
-            options.parseBody = { limit: 10000 };
-        return new gnome(options);
+        const gnomeOptions = {};
+        if (options?.parseBody)
+            gnomeOptions.parseBody = options.parseBody;
+        if (options?.maxBodySize)
+            gnomeOptions.maxBodySize = options.maxBodySize;
+        if (options?.maxHeadersCount)
+            gnomeOptions.maxHeadersCount = options.maxHeadersCount;
+        if (options?.maxHeadersSize)
+            gnomeOptions.maxHeadersSize = options.maxHeadersSize;
+        if (options?.parseCookies)
+            gnomeOptions.parseCookies = options.parseCookies;
+        return new gnome(gnomeOptions);
     }
 }
 export default gnome;

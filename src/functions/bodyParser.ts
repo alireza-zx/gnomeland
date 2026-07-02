@@ -24,8 +24,12 @@ export const bodyParser = (limit: number) =>
       
       const data = buff.subarray(0, offset).toString("utf-8");
 
-      if (req.headers["content-type"] === "application/json")
-        req.body = JSON.parse(data);
+      try {
+        if (req.headers["content-type"] === "application/json")
+          req.body = JSON.parse(data);
+      } catch(err) {
+        
+      }
 
       req.rawBody = buff.subarray(0, offset);
       next();

@@ -15,6 +15,7 @@ import { matchRoutes } from "./functions/matchRoutes.js";
 import type { gnomeOptions } from "./types/interfaces/gnomeOptions.type.js";
 import { cookieParser } from "./functions/cookieParser.js";
 import { setCookieWrapper } from "./response-functions/setCookie.js";
+import { securityChecks } from "./functions/securityChecks.js";
 
 /**
  * Create http applications with Gnome!
@@ -34,7 +35,7 @@ class gnome {
    * Create a new gnome app
    * @param options app options
    */
-  constructor(options?: gnomeOptions) {
+  constructor(protected readonly gnomeOptions: gnomeOptions) {
     this.server = http.createServer();
     this.routes = {};
     this.routePaths = [];
@@ -42,11 +43,11 @@ class gnome {
     this.errorHandler = undefined;
 
     // Set middlewares for every option
-    if (options?.parseBody)
-      this.middlewares.push(gnome.parseBody(options.parseBody.limit));
+    if (gnomeOptions.parseBody)
+      this.middlewares.push(gnome.parseBody(gnomeOptions.maxBodySize));
 
-    if (options?.parseCookies)
-      this.middlewares.push(gnome.parseCookies())
+    if (gnomeOptions.parseCookies)
+      this.middlewares.push(gnome.parseCookies());
   }
 
   /**
@@ -63,6 +64,10 @@ class gnome {
    */
   public listen(port?: number, host?: string, cb?: () => void) {
     this.server.on("request", async (req: GnomeRequest, res: GnomeResponse) => {
+      req.ip = req.socket.remoteAddress;
+      // Checking the request
+      if (!securityChecks(req, res, this.gnomeOptions)) return;
+
       const splited = req.url!.split('?');
       const path = splited[0]!;
 
@@ -98,7 +103,7 @@ class gnome {
 
       if (!handlers)
         return res.status(404).json({
-          status: 'fail',
+          status: 'failed',
           message: `Cannot ${req.method} ${req.path}`
         });
 
@@ -259,10 +264,20 @@ class gnome {
    * @returns a new gnome app
    */
   static craftApp(options?: gnomeOptions) {
-    if (options && !options.parseBody?.limit)
-      options.parseBody = { limit: 10000 }
-    
-    return new gnome(options);
+    const gnomeOptions: Record<string, any> = {};
+
+    if (options?.parseBody)
+      gnomeOptions.parseBody = options.parseBody;
+    if (options?.maxBodySize)
+      gnomeOptions.maxBodySize = options.maxBodySize;
+    if (options?.maxHeadersCount)
+      gnomeOptions.maxHeadersCount = options.maxHeadersCount;
+    if (options?.maxHeadersSize)
+      gnomeOptions.maxHeadersSize = options.maxHeadersSize;
+    if (options?.parseCookies)
+      gnomeOptions.parseCookies = options.parseCookies;
+
+    return new gnome(gnomeOptions);
   }
 }
 
