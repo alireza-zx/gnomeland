@@ -51,12 +51,6 @@ app.listen(3000, () => console.log('server running on port 3000'));
 ```
 
 ## 🔧 Installation
-- Install using npm
-```bash
-npm i gnomeland
-```
-
-- Clone the project
 ```bash
 git clone https://github.com/alireza-zx/gnomeland.git
 cd gnomeland
