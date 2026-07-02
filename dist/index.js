@@ -1,0 +1,216 @@
+import http from "node:http";
+import { sendFileWrapper } from "./response-functions/sendFile.js";
+import { downloadFileWrapper } from "./response-functions/download.js";
+import { statusWrapper } from "./response-functions/status.js";
+import { jsonWrapper } from "./response-functions/json.js";
+import { runHandlersAndMiddlewares } from "./functions/runMiddlewares.js";
+import { bodyParser } from "./functions/bodyParser.js";
+import { textWrapper } from "./response-functions/text.js";
+import { matchRoutes } from "./functions/matchRoutes.js";
+import { cookieParser } from "./functions/cookieParser.js";
+import { setCookieWrapper } from "./response-functions/setCookie.js";
+/**
+ * Create http applications with Gnome!
+ *
+ * @example
+ * import gnome from 'gnome';
+ * const gnomeApp = gnome.craftApp(options);
+ */
+class gnome {
+    server;
+    routes;
+    routePaths;
+    middlewares;
+    errorHandler;
+    /**
+     * Create a new gnome app
+     * @param options app options
+     */
+    constructor(options) {
+        this.server = http.createServer();
+        this.routes = {};
+        this.routePaths = [];
+        this.middlewares = [];
+        this.errorHandler = undefined;
+        // Set middlewares for every option
+        if (options?.parseBody)
+            this.middlewares.push(gnome.parseBody(options.parseBody.limit));
+        if (options?.parseCookies)
+            this.middlewares.push(gnome.parseCookies());
+    }
+    /**
+     * Listens on incoming requests on a specific port and hostname
+     * @param port port number
+     * @param host hostname
+     * @param cb callback that will be called after server started
+     * @example
+     * const PORT = process.env.PORT ?? 3000;
+     * const HOST = process.env.HOST ?? 'localhost';
+     * gnomeApp.listen(PORT, HOST, () => {
+     *   console.log(`Server running on http://${HOST}:${PORT}`);
+     * });
+     */
+    listen(port, host, cb) {
+        this.server.on("request", async (req, res) => {
+            const splited = req.url.split('?');
+            const path = splited[0];
+            // -- Parsing query parameters
+            if (splited[1] !== undefined) {
+                req.query = Object.fromEntries(splited[1].split('&').reduce((arr, val) => {
+                    const split = val.split('=');
+                    if (split[1])
+                        arr.push([split[0], split[1]]);
+                    else
+                        arr.push([split[0], true]);
+                    return arr;
+                }, []));
+            }
+            req.params = {};
+            // -- Matching routes, also will set the parameters in req.params
+            const handlers = matchRoutes(path, this.routePaths, this.routes, req);
+            // -- adding additional properties to req --
+            req.path = path;
+            res.sendFile = sendFileWrapper(res);
+            res.download = downloadFileWrapper(res);
+            res.status = statusWrapper(res);
+            res.json = jsonWrapper(res);
+            res.text = textWrapper(res);
+            res.setCookie = setCookieWrapper(res);
+            // -- Run the middlewares --
+            // -- Run the handlers --
+            if (!handlers)
+                return res.status(404).json({
+                    status: 'fail',
+                    message: `Cannot ${req.method} ${req.path}`
+                });
+            runHandlersAndMiddlewares(req, res, this.middlewares, 0, handlers, this.errorHandler);
+        });
+        this.server.listen(port, host, cb);
+    }
+    // ----------------------------------------------------
+    /**
+     * Adds handlers and middlewares to a particular path with GET method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    get(path, ...handlers) {
+        if (!this.routes[`GET ${path}`])
+            this.routes[`GET ${path}`] = [];
+        this.routes[`GET ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`GET ${path}`))
+            this.routePaths.push(`GET ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with POST method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    post(path, ...handlers) {
+        if (!this.routes[`POST ${path}`])
+            this.routes[`POST ${path}`] = [];
+        this.routes[`POST ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`POST ${path}`))
+            this.routePaths.push(`POST ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with PATCH method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    patch(path, ...handlers) {
+        if (!this.routes[`PATCH ${path}`])
+            this.routes[`PATCH ${path}`] = [];
+        this.routes[`PATCH ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`PATCH ${path}`))
+            this.routePaths.push(`PATCH ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with PUT method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    put(path, ...handlers) {
+        if (!this.routes[`PUT ${path}`])
+            this.routes[`PUT ${path}`] = [];
+        this.routes[`PUT ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`PUT ${path}`))
+            this.routePaths.push(`PUT ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with DELETE method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    delete(path, ...handlers) {
+        if (!this.routes[`DELETE ${path}`])
+            this.routes[`DELETE ${path}`] = [];
+        this.routes[`DELETE ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`DELETE ${path}`))
+            this.routePaths.push(`DELETE ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with OPTIONS method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    options(path, ...handlers) {
+        if (!this.routes[`OPTIONS ${path}`])
+            this.routes[`OPTIONS ${path}`] = [];
+        this.routes[`OPTIONS ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`OPTIONS ${path}`))
+            this.routePaths.push(`OPTIONS ${path}`);
+    }
+    /**
+     * Adds handlers and middlewares to a particular path with HEAD method
+     * @param path path
+     * @param handlers handlers and middlewares
+     */
+    head(path, ...handlers) {
+        if (!this.routes[`HEAD ${path}`])
+            this.routes[`HEAD ${path}`] = [];
+        this.routes[`HEAD ${path}`].push(...handlers);
+        if (!this.routePaths.includes(`HEAD ${path}`))
+            this.routePaths.push(`HEAD ${path}`);
+    }
+    // ------------------------------------------------------
+    /**
+     * Adds a new middleware to middleware chain
+     * @param middleware middleware
+     */
+    middleware(middleware) {
+        this.middlewares.push(middleware);
+    }
+    /**
+     * Creates an error handler that handles errors and exceptions
+     * @param errorHandler errorHandler
+     */
+    error(errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+    /**
+     * Returns a middleware for parsing bodies
+     * @param limit the mazimum size that a request body can have
+     * @returns Body parser middleware
+     */
+    static parseBody(limit = 10000) {
+        return bodyParser(limit);
+    }
+    static parseCookies() {
+        return cookieParser();
+    }
+    /**
+     * Creates a new gnome app
+     * @param options options like parseBody, parseCookie or ...
+     * @returns a new gnome app
+     */
+    static craftApp(options) {
+        if (options && !options.parseBody?.limit)
+            options.parseBody = { limit: 10000 };
+        return new gnome(options);
+    }
+}
+export default gnome;
+export * from './types/errorHandler.type.js';
+export * from "./types/handler.type.js";
+export * from "./types/interfaces/request.interface.js";
+export * from "./types/interfaces/response.interface.js";
