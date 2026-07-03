@@ -290,3 +290,4 @@ export * from './types/errorHandler.type.js';
 export * from "./types/handler.type.js";
 export * from "./types/interfaces/request.interface.js";
 export * from "./types/interfaces/response.interface.js";
+export * from "./types/routes.type.js";

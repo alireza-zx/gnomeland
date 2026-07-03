@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import type { GnomeRequest } from "../types/interfaces/request.interface.js";
 import type { GnomeResponse } from "../types/interfaces/response.interface.js";
 

@@ -3,7 +3,7 @@ import { sendFileWrapper } from "./response-functions/sendFile.js";
 import { downloadFileWrapper } from "./response-functions/download.js";
 import { statusWrapper } from "./response-functions/status.js";
 import { jsonWrapper } from "./response-functions/json.js";
-import { runHandlersAndMiddlewares } from "./functions/runMiddlewares.js";
+import { runHandlers, runMiddlewares } from "./functions/run.js";
 import { bodyParser } from "./functions/bodyParser.js";
 import { textWrapper } from "./response-functions/text.js";
 import { matchRoutes } from "./functions/matchRoutes.js";
@@ -55,7 +55,6 @@ class gnome {
      */
     listen(port, host, cb) {
         this.server.on("request", async (req, res) => {
-            req.ip = req.socket.remoteAddress;
             // Checking the request
             if (!securityChecks(req, res, this.gnomeOptions))
                 return;
@@ -72,25 +71,33 @@ class gnome {
                     return arr;
                 }, []));
             }
+            // --- adding additional properties to req object ---
             req.params = {};
-            // -- Matching routes, also will set the parameters in req.params
-            const handlers = matchRoutes(path, this.routePaths, this.routes, req);
-            // -- adding additional properties to req --
             req.path = path;
+            // -- adding additional properties to res object --
             res.sendFile = sendFileWrapper(res);
             res.download = downloadFileWrapper(res);
             res.status = statusWrapper(res);
             res.json = jsonWrapper(res);
             res.text = textWrapper(res);
             res.setCookie = setCookieWrapper(res);
-            // -- Run the middlewares --
-            // -- Run the handlers --
-            if (!handlers)
+            // --- running global middlewares ---
+            await runMiddlewares(req, res, this.middlewares, 0, this.errorHandler);
+            // --- check if route exists before matching
+            if (this.routes[`${req.method} ${req.path}`]) {
+                await runHandlers(req, res, this.routes[`${req.method} ${req.path}`], 0, this.errorHandler);
+                return;
+            }
+            // -- Matching routes, also will set the parameters in req.params
+            const handlers = matchRoutes(path, this.routePaths, this.routes, req);
+            if (!handlers) {
                 return res.status(404).json({
                     status: 'failed',
                     message: `Cannot ${req.method} ${req.path}`
                 });
-            runHandlersAndMiddlewares(req, res, this.middlewares, 0, handlers, this.errorHandler);
+            }
+            // --- running the handlers ---
+            await runHandlers(req, res, handlers, 0, this.errorHandler);
         });
         this.server.listen(port, host, cb);
     }
@@ -230,3 +237,4 @@ export * from './types/errorHandler.type.js';
 export * from "./types/handler.type.js";
 export * from "./types/interfaces/request.interface.js";
 export * from "./types/interfaces/response.interface.js";
+export * from "./types/routes.type.js";
