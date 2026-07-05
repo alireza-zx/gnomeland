@@ -1,4 +1,4 @@
-import type { ServerResponse } from "node:http";
+import { ServerResponse } from "node:http";
 import type { SetCookieOptions } from "./setCookieOptions.interface.js";
 
 export interface GnomeResponse extends ServerResponse {

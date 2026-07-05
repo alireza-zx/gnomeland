@@ -1,4 +1,4 @@
-import type { IncomingMessage } from 'node:http';
+import { IncomingMessage } from 'node:http';
 export interface GnomeRequest extends IncomingMessage {
     ip: string | undefined;
     body: Record<string, any>;

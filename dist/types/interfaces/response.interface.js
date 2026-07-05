@@ -1,1 +1,1 @@
-export {};
+import { ServerResponse } from "node:http";

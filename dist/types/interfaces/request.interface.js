@@ -1,1 +1,1 @@
-export {};
+import { IncomingMessage } from 'node:http';
