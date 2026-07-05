@@ -21,5 +21,7 @@ export function setCookieWrapper(res: GnomeResponse) {
       cookie += `SameSite=${options.sameSite}`;
 
     res.setHeader('Set-Cookie', cookie);
+    
+    return res;
   }
 }

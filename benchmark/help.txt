@@ -1,0 +1,6 @@
+npm i gnomeland
+tsc app.ts
+node app.js
+
+
+then use autocannon or any other benchmarking tool

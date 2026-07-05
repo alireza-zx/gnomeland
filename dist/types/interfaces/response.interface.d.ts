@@ -36,5 +36,11 @@ export interface GnomeResponse extends ServerResponse {
      * @param cookieValue value of the cookie
      * @param options options of cookie
      */
-    setCookie(cookieName: string, cookieValue: string, options: SetCookieOptions): void;
+    setCookie(cookieName: string, cookieValue: string, options?: SetCookieOptions): void;
+    /**
+     * removes the cookie from client
+     * @param cookieName name of the cookie
+     * @param options options of the cookie for recognizing the cookie (if specific options was provided when cookie was sent)
+     */
+    removeCookie(cookieName: string, options?: SetCookieOptions): void;
 }

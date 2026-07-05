@@ -22,34 +22,47 @@ A Node.js web framework for rapid http application development
 - Get cookies in req.cookies, in a nice object form
 
 ## Example
-```js
-import gnome from 'gnomeland';
+```ts
+import gnome { type GnomeRequest, type GnomeResponse, type Next } from 'gnomeland';
 
+// Crafting the Gnome app 🔨
 const app = gnome.craftApp({ parseBody: true, parseCookies: true });
 
-app.middleware((req, res, next) => {
+// Adding middlewares
+app.middleware((req: GnomeRequest, res: GnomeResponse, next: Next) => {
   console.log(`> New request hit server: ${req.method} - ${req.path}`);
   next();
 });
 
-app.get('/', (req, res) => {
+// Adding routes
+app.get('/', (req: GnomeRequest, res: GnomeResponse) => {
   res.status(200).text('Hello World');
 });
 
-app.post('/api/posts', authMiddleware, userMiddleware, routeHandler);
+function auth(req: GnomeRequest, res: GnomeResponse, next: Next) {
+  if (req.cookies.token !== 'GodIsTheBest') {
+    return next({ statusCode: 401, message: "Unauthorized" });
+  }
 
-app.post('/api/login', (req, res, next) => {
-  if (req.body.password !== 'pass1234')
-    return next({ statusCode: 401, message: 'Unauthorized' });
+  next();
+}
 
-  res.status(200).json({ message: 'successfully logged in!' });
-});
+function createPost(req: GnomeRequest, res: GnomeResponse, next: Next) {
+  if (req.body.title && req.body.description) {
+    // ...
+    return res.status(201).json({ message: "Post created successfully!" });
+  } else next({ statusCode: 400, message: "Please provide title and description!" });
+}
 
-app.error((err, req, res) => {
+app.post('/api/posts', auth, createPost);
+
+// Handling errors properly and in a centralized way
+app.error((err: any, req: GnomeRequest, res: GnomeResponse) => {
   console.log(`> Error! :\n`, err);
   res.status(err.statusCode).json({ status: 'error', message: err.message });
 });
 
+// Starting the server
 app.listen(3000, () => console.log('server running on port 3000'));
 
 ```

@@ -16,6 +16,7 @@ import type { gnomeOptions } from "./types/interfaces/gnomeOptions.type.js";
 import { cookieParser } from "./functions/cookieParser.js";
 import { setCookieWrapper } from "./response-functions/setCookie.js";
 import { securityChecks } from "./functions/securityChecks.js";
+import { removeCookieWrapper } from "./response-functions/removeCookie.js";
 
 /**
  * Create http applications with Gnome!
@@ -95,6 +96,7 @@ class gnome {
       res.json = jsonWrapper(res);
       res.text = textWrapper(res);
       res.setCookie = setCookieWrapper(res);
+      res.removeCookie = removeCookieWrapper(res);
 
       // --- running global middlewares ---
 

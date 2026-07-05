@@ -16,5 +16,6 @@ export function setCookieWrapper(res) {
         if (options?.sameSite)
             cookie += `SameSite=${options.sameSite}`;
         res.setHeader('Set-Cookie', cookie);
+        return res;
     };
 }

@@ -10,6 +10,7 @@ import { matchRoutes } from "./functions/matchRoutes.js";
 import { cookieParser } from "./functions/cookieParser.js";
 import { setCookieWrapper } from "./response-functions/setCookie.js";
 import { securityChecks } from "./functions/securityChecks.js";
+import { removeCookieWrapper } from "./response-functions/removeCookie.js";
 /**
  * Create http applications with Gnome!
  *
@@ -81,6 +82,7 @@ class gnome {
             res.json = jsonWrapper(res);
             res.text = textWrapper(res);
             res.setCookie = setCookieWrapper(res);
+            res.removeCookie = removeCookieWrapper(res);
             // --- running global middlewares ---
             await runMiddlewares(req, res, this.middlewares, 0, this.errorHandler);
             // --- check if route exists before matching

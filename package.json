@@ -1,6 +1,6 @@
 {
   "name": "gnomeland",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A framework for rapid and easy http server development",
   "license": "MIT",
   "keywords": [
