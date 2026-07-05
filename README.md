@@ -2,8 +2,12 @@
 <img src="https://nodejs.org/static/images/logo.svg" alt="Node.js">
 </p>
 
+![Node.js](https://img.shields.io/badge/Node.js-v22.x-5FA04E?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+  
 # 🧙‍♂️ GnomeLand
-A Node.js framework for rapid http application development
+A Node.js web framework for rapid http application development
 ---
 
 ## 🧭 Features
@@ -18,10 +22,10 @@ A Node.js framework for rapid http application development
 - Get cookies in req.cookies, in a nice object form
 
 ## Example
-```ts
+```js
 import gnome from 'gnomeland';
 
-const app = gnome.craftApp({ parseBody: { limit: 5000 }, parseCookies: true }); // 5000 bytes == 5kb
+const app = gnome.craftApp({ parseBody: true, parseCookies: true });
 
 app.middleware((req, res, next) => {
   console.log(`> New request hit server: ${req.method} - ${req.path}`);

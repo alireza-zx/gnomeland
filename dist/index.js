@@ -99,7 +99,12 @@ class gnome {
             // --- running the handlers ---
             await runHandlers(req, res, handlers, 0, this.errorHandler);
         });
-        this.server.listen(port, host, cb);
+        if (typeof host === 'function') {
+            this.server.listen(port, host);
+        }
+        else {
+            this.server.listen(port, host, cb);
+        }
     }
     // ----------------------------------------------------
     /**
@@ -209,8 +214,12 @@ class gnome {
     static parseBody(limit = 10000) {
         return bodyParser(limit);
     }
+    /**
+     * Returns a middleware for parsing cookies
+     * @returns Cookie parser middleware
+     */
     static parseCookies() {
-        return cookieParser();
+        return cookieParser;
     }
     /**
      * Creates a new gnome app
@@ -233,8 +242,3 @@ class gnome {
     }
 }
 export default gnome;
-export * from './types/errorHandler.type.js';
-export * from "./types/handler.type.js";
-export * from "./types/interfaces/request.interface.js";
-export * from "./types/interfaces/response.interface.js";
-export * from "./types/routes.type.js";

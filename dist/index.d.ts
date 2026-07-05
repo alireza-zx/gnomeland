@@ -4,6 +4,7 @@ import type { GnomeRequest } from "./types/interfaces/request.interface.js";
 import type { GnomeResponse } from "./types/interfaces/response.interface.js";
 import type { ErrorHandler } from "./types/errorHandler.type.js";
 import type { gnomeOptions } from "./types/interfaces/gnomeOptions.type.js";
+import { cookieParser } from "./functions/cookieParser.js";
 /**
  * Create http applications with Gnome!
  *
@@ -35,7 +36,7 @@ declare class gnome {
      *   console.log(`Server running on http://${HOST}:${PORT}`);
      * });
      */
-    listen(port?: number, host?: string, cb?: () => void): void;
+    listen(port?: number, host?: string | (() => void), cb?: () => void): void;
     /**
      * Adds handlers and middlewares to a particular path with GET method
      * @param path path
@@ -94,7 +95,11 @@ declare class gnome {
      * @returns Body parser middleware
      */
     static parseBody(limit?: number): (req: GnomeRequest, res: GnomeResponse, next: any) => Promise<void>;
-    static parseCookies(): (req: GnomeRequest, res: GnomeResponse, next: any) => any;
+    /**
+     * Returns a middleware for parsing cookies
+     * @returns Cookie parser middleware
+     */
+    static parseCookies(): typeof cookieParser;
     /**
      * Creates a new gnome app
      * @param options options like parseBody, parseCookie or ...
@@ -103,8 +108,9 @@ declare class gnome {
     static craftApp(options?: gnomeOptions): gnome;
 }
 export default gnome;
-export * from './types/errorHandler.type.js';
-export * from "./types/handler.type.js";
-export * from "./types/interfaces/request.interface.js";
-export * from "./types/interfaces/response.interface.js";
-export * from "./types/routes.type.js";
+export type { ErrorHandler } from './types/errorHandler.type.js';
+export type { Handler } from "./types/handler.type.js";
+export type { GnomeRequest } from "./types/interfaces/request.interface.js";
+export type { GnomeResponse } from "./types/interfaces/response.interface.js";
+export type { Routes } from "./types/routes.type.js";
+export type { Next } from "./types/next.type.js";

@@ -62,7 +62,7 @@ class gnome {
    *   console.log(`Server running on http://${HOST}:${PORT}`);
    * });
    */
-  public listen(port?: number, host?: string, cb?: () => void) {
+  public listen(port?: number, host?: string | (() => void), cb?: () => void) {
     this.server.on("request", async (req: GnomeRequest, res: GnomeResponse) => {
       // Checking the request
       if (!securityChecks(req, res, this.gnomeOptions)) return;
@@ -120,7 +120,11 @@ class gnome {
       await runHandlers(req, res, handlers, 0, this.errorHandler);
     });
 
-    this.server.listen(port, host, cb);
+    if (typeof host === 'function') {
+      this.server.listen(port, host);
+    } else {
+      this.server.listen(port, host, cb);
+    }
   }
 
   // ----------------------------------------------------
@@ -257,10 +261,14 @@ class gnome {
     return bodyParser(limit);
   }
 
+  /**
+   * Returns a middleware for parsing cookies
+   * @returns Cookie parser middleware
+   */
   static parseCookies() {
-    return cookieParser();
+    return cookieParser;
   }
-
+  
   /**
    * Creates a new gnome app
    * @param options options like parseBody, parseCookie or ...
@@ -286,8 +294,9 @@ class gnome {
 
 export default gnome;
 
-export * from './types/errorHandler.type.js';
-export * from "./types/handler.type.js";
-export * from "./types/interfaces/request.interface.js";
-export * from "./types/interfaces/response.interface.js";
-export * from "./types/routes.type.js";
+export type { ErrorHandler } from './types/errorHandler.type.js';
+export type { Handler } from "./types/handler.type.js";
+export type { GnomeRequest } from "./types/interfaces/request.interface.js";
+export type { GnomeResponse } from "./types/interfaces/response.interface.js";
+export type { Routes } from "./types/routes.type.js";
+export type { Next } from "./types/next.type.js";

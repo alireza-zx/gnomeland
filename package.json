@@ -1,20 +1,20 @@
 {
   "name": "gnomeland",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A framework for rapid and easy http server development",
   "license": "MIT",
   "author": "alireza-zx",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["./dist"],
+  "files": [
+    "./dist"
+  ],
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {
-    "@types/node": "^26.0.0"
-  },
   "devDependencies": {
+    "@types/node": "^26.1.0",
     "typescript": "^6.0.3"
   }
 }
