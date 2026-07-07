@@ -20,6 +20,7 @@ A Node.js web framework for rapid http application development
 - Automatically forbid undefined routes
 - Send cookies easily with res.setCookie
 - Get cookies in req.cookies, in a nice object form
+- And much more!
 
 ## Example
 ```ts
@@ -67,11 +68,18 @@ app.listen(3000, () => console.log('server running on port 3000'));
 
 ```
 
+## ✨ Technologies
+- TypeScript
+- JavaScript
+- Node.js
+
 ## 🔧 Installation
 - Install using npm
 ```bash
 npm i gnomeland
 ```
+
+Also install @types/node if you are using typescript.
 
 - Clone the project
 ```bash

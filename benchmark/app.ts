@@ -81,6 +81,4 @@ app.listen(3000, () => {
 });
 
 
-// I got around 12k RPS on my computer with this app that has a lot of middlewares and routes
-// but my computer is old and slow, try it yourself to find out gnomeland's real speed!😉
-// I recommend autocannon to benchmark
+// bechmark this with autocannon or any other tool
