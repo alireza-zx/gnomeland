@@ -76,8 +76,8 @@ class gnome {
             req.params = {};
             req.path = path;
             // -- adding additional properties to res object --
-            res.sendFile = sendFileWrapper(res);
-            res.download = downloadFileWrapper(res);
+            res.sendFile = sendFileWrapper(req, res);
+            res.download = downloadFileWrapper(req, res);
             res.status = statusWrapper(res);
             res.json = jsonWrapper(res);
             res.text = textWrapper(res);

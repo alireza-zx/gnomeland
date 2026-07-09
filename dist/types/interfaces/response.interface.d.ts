@@ -6,15 +6,13 @@ export interface GnomeResponse extends ServerResponse {
     /**
      * send a file using streams
      * @param filePath the path of the file you want to send, relative path or absoloute path
-     * @param mimeType mimeType of the file you want to send.
      */
-    sendFile(filePath: string, mimeType: string): Promise<void>;
+    sendFile(filePath: string): Promise<void>;
     /**
      * send a file that client will download, using streams
      * @param filePath the path of the file you want to send, relative path or absoloute path
-     * @param mimeType mimeType of the file you want to send.
      */
-    download(filePath: string, mimeType: string): Promise<void>;
+    download(filePath: string): Promise<void>;
     /**
      * set the status code for response
      * @param code status code

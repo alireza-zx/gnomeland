@@ -36,8 +36,8 @@ app.middleware((req: GnomeRequest, res: GnomeResponse, next: Next) => {
 });
 
 // Adding routes
-app.get('/', (req: GnomeRequest, res: GnomeResponse) => {
-  res.status(200).text('Hello World');
+app.get('/:name/:age', (req: GnomeRequest, res: GnomeResponse) => {
+  res.status(200).text('Hello World ' + req.params.name + req.params.age);
 });
 
 function auth(req: GnomeRequest, res: GnomeResponse, next: Next) {
@@ -56,6 +56,22 @@ function createPost(req: GnomeRequest, res: GnomeResponse, next: Next) {
 }
 
 app.post('/api/posts', auth, createPost);
+
+// Streaming videos or audios or any file
+
+app.get('/vid', (req: GnomeRequest, res: GnomeResponse) => {
+  // This method streams the file gently to the client
+  // Also supports Range headers
+  res.sendFile("./videos/monkey.mp4");
+});
+
+// downloading files
+app.get('/game', (req: GnomeRequest, res: GnomeResponse) => {
+  // This method streams the file gently to the client
+  // Also supports Range headers
+  // Will download the file in client's device
+  res.download("./files/game.exe");
+});
 
 // Handling errors properly and in a centralized way
 app.error((err: any, req: GnomeRequest, res: GnomeResponse) => {
