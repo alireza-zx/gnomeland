@@ -3,6 +3,7 @@
 </p>
 
 ![Node.js](https://img.shields.io/badge/Node.js-v22.x-5FA04E?logo=node.js&logoColor=white)
+![npm](https://img.shields.io/npm/v/gnomeland?logo=npm)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
   
